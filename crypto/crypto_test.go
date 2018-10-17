@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"crypto/aes"
 	"testing"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func TestPadding(t *testing.T) {
@@ -55,8 +53,6 @@ func TestPadding(t *testing.T) {
 	}
 	unpadded, err = removePadding(padded, maxLen)
 	if err != nil {
-		spew.Dump(padded)
-
 		t.Errorf("removePadding 4: %s", err)
 	}
 	if !bytes.Equal(td4, unpadded) {
