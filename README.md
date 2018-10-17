@@ -8,5 +8,6 @@ It only does three things:
 
 It does NOT do any key management.
 
-Strings are first padded to a multiple of 500 bytes and then encrypted.
+Strings are first padded to 500 bytes and then encrypted.
 Output is always base58, wrapped at 48 characters.
+
