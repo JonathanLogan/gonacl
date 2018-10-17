@@ -8,6 +8,8 @@ import (
 	"os"
 	"syscall"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/JonathanLogan/gonacl/crypto"
 	"github.com/JonathanLogan/gonacl/encode"
 )
@@ -40,7 +42,7 @@ func printError(err error) {
 }
 
 func main() {
-	syscall.Mlockall(syscall.MCL_CURRENT | syscall.MCL_FUTURE)
+	unix.Mlockall(syscall.MCL_CURRENT | syscall.MCL_FUTURE)
 	var publicKey *[crypto.PublicKeySize]byte
 	var privateKey *[crypto.PrivateKeySize]byte
 	var data []byte
