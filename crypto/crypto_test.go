@@ -89,15 +89,11 @@ func TestEncryption(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Encrypt: %s", err)
 	}
-	decrypted, err := Decrypt(encrypted[:], nil, priv)
+	decrypted, err := Decrypt(encrypted[:], priv)
 	if err != nil {
 		t.Errorf("Decrypt: %s", err)
 	}
 	if !bytes.Equal(decrypted, td) {
 		t.Error("Encrypt/Decrypt modified message")
-	}
-	_, err = Decrypt(encrypted[:], pub, priv)
-	if err != nil {
-		t.Fatalf("Decrypt Receiver: %s", err)
 	}
 }

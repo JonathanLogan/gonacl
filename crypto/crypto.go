@@ -19,8 +19,6 @@ var (
 	ErrMaximumMessageSize = errors.New("gonacl/crypto: Maximum message size exceeded")
 	// ErrMessageLength is returned whenever a message slice is encountered that has an unexpected length.
 	ErrMessageLength = errors.New("gonacl/crypto: Unexpected message length")
-	// ErrWrongReceiver is returned when a message is addressed to the wrong receiver.
-	ErrWrongReceiver = errors.New("gonacl/crypto: Wrong receiver")
 	// ErrDecryptionFailed is returned if a message cannot be decrypted.
 	ErrDecryptionFailed = errors.New("gonacal/crypto: Decryption failed")
 )
@@ -37,7 +35,7 @@ const (
 	// paddingLengthFieldSize => size of padding length field in message.
 	paddingLengthFieldSize = 2
 	// messageHeaderSize => prefix to encrypted message
-	messageHeaderSize = NonceSize + PublicKeySize + PublicKeySize
+	messageHeaderSize = NonceSize + PublicKeySize
 	// CyphertextSize is the fixed length of any binary cyphertext.
 	CyphertextSize = messageHeaderSize + paddingLengthFieldSize + MaximumCleartextSize + box.Overhead
 	// aesKeySize is the size of AES keys (256bit)
@@ -132,27 +130,21 @@ func Encrypt(publicKey *[PublicKeySize]byte, cleartext []byte) (encrypted *[Cyph
 	}
 	outN := box.Seal(nil, paddedMessage, nonce, publicKey, messagePrivateKey)
 	out := new([CyphertextSize]byte)
-	copy(out[:PublicKeySize], publicKey[:])
-	copy(out[PublicKeySize:PublicKeySize+PublicKeySize], messagePublicKey[:])
-	copy(out[PublicKeySize+PublicKeySize:messageHeaderSize], nonce[:])
+	copy(out[:PublicKeySize], messagePublicKey[:])
+	copy(out[PublicKeySize:messageHeaderSize], nonce[:])
 	copy(out[messageHeaderSize:], outN)
 	return out, nil
 }
 
 // Decrypt a cyphertext with a private key.
-func Decrypt(cyphertext []byte, expectedPublicKey *[PublicKeySize]byte, privatekey *[PrivateKeySize]byte) (cleartest []byte, err error) {
+func Decrypt(cyphertext []byte, privatekey *[PrivateKeySize]byte) (cleartest []byte, err error) {
 	if len(cyphertext) != CyphertextSize {
 		return nil, ErrMessageLength
 	}
 	nonce := new([NonceSize]byte)
 	senderPubKey := new([PublicKeySize]byte)
-	receiverPubKey := new([PublicKeySize]byte)
-	copy(receiverPubKey[:], cyphertext[:PublicKeySize])
-	if expectedPublicKey != nil && *receiverPubKey != *expectedPublicKey {
-		return nil, ErrWrongReceiver
-	}
-	copy(senderPubKey[:], cyphertext[PublicKeySize:PublicKeySize+PublicKeySize])
-	copy(nonce[:], cyphertext[PublicKeySize+PublicKeySize:messageHeaderSize])
+	copy(senderPubKey[:], cyphertext[:PublicKeySize])
+	copy(nonce[:], cyphertext[PublicKeySize:messageHeaderSize])
 	msgPadded, ok := box.Open(nil, cyphertext[messageHeaderSize:], nonce, senderPubKey, privatekey)
 	if !ok {
 		return nil, ErrDecryptionFailed

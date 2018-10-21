@@ -90,7 +90,7 @@ func main() {
 		if err != nil {
 			printError(err)
 		}
-		cleartext, err := crypto.Decrypt(decoded, nil, privateKey)
+		cleartext, err := crypto.Decrypt(decoded, privateKey)
 		if err != nil {
 			printError(err)
 		}
